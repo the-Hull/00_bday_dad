@@ -14,13 +14,13 @@ library(dplyr)
 
 
 download_details <-list(durham = list(location = "Durham, NC", 5.5, 5.5),
-                    manhatten = list(location = "Central Park, NYC", 6.5, 6.5),
+                    manhattan = list(location = "Central Park, NYC", 6.5, 6.5),
                     muenster = list(location = "Muenster, Germany", 5.5, 5.5),
                     vilseck = list(location = "Vilseck, Germany", 4.5, 4.5)
                     )
 
 clip_details <-list(durham = list(location = "Durham, NC", 5, 5),
-                    manhatten = list(location = "Central Park, NYC", 6, 6),
+                    manhattan = list(location = "Central Park, NYC", 6, 6),
                     muenster = list(location = "Muenster, Germany", 5, 5),
                     vilseck = list(location = "Vilseck, Germany", 2.5, 2.5)
                     )
@@ -36,7 +36,7 @@ clipboxes <- purrr::map(clip_details, ~AOI::getAOI(clip = .x, km = TRUE) )
 
 # visual check
 # AOI::check(bboxes[["durham"]])
-# AOI::check(bboxes[["manhatten"]])
+# AOI::check(bboxes[["manhattan"]])
 # AOI::check(bboxes[["muenster"]])
 # AOI::check(bboxes[["vilseck"]])
 
@@ -165,7 +165,7 @@ theme_update(
     # plot.background = element_blank(),
     plot.background = element_rect(fill = bg_col,
                                    color = bg_col),
-    plot.margin = margin(5, 5, 15, 5),
+    plot.margin = margin(7, 7, 30, 7),
     panel.border = element_rect(color = road_col,
                                 size = 10,
                                 fill = "transparent",
@@ -188,7 +188,8 @@ theme_update(
 
 extrafont::loadfonts()
 
-hrbrthemes::update_geom_font_defaults(family = "HP Simplified Light")
+# hrbrthemes::update_geom_font_defaults(family = "HP Simplified Light")
+# hrbrthemes::update_geom_font_defaults(family = "Arrial Narrow")
 # hrbrthemes::update_geom_font_defaults(family = hrbrthemes::font_rc)
 
 
@@ -248,52 +249,51 @@ durham_map <- ggplot() +
            expand = TRUE) +
   labs(title = "Durham") 
 
-
 # New York -------------------------------------------------------------------
 
 
 
 
-manhatten_map <- ggplot() +
+manhattan_map <- ggplot() +
    
 
-    geom_sf(data = water_sf$manhatten$osm_polygons,
+    geom_sf(data = water_sf$manhattan$osm_polygons,
             fill = water_col,
             color = water_col) +
     
 
-  geom_sf(data = waterway_full_sf$manhatten$osm_lines,
+  geom_sf(data = waterway_full_sf$manhattan$osm_lines,
           fill = water_col,
           color = water_col,
-          size = waterway_full_sf$manhatten$osm_lines %>% 
+          size = waterway_full_sf$manhattan$osm_lines %>% 
             add_weights_water() %>% pull(line_weights)) +
   
     
-    geom_sf(data = waternatural_sf$manhatten$osm_polygons,
+    geom_sf(data = waternatural_sf$manhattan$osm_polygons,
             fill = water_col,
             color = water_col) +
-    geom_sf(data = waternatural_sf$manhatten$osm_multipolygons,
+    geom_sf(data = waternatural_sf$manhattan$osm_multipolygons,
             fill = water_col,
             color = water_col) +
   
   
   
-  geom_sf(data = waterres_sf$manhatten$osm_polygons,
+  geom_sf(data = waterres_sf$manhattan$osm_polygons,
           fill = water_col,
           color = water_col) +
   
-     geom_sf(data = transport_highway_sf$manhatten$osm_lines,
+     geom_sf(data = transport_highway_sf$manhattan$osm_lines,
              fill = road_col,
              color = road_col,
-             size = transport_highway_sf$manhatten$osm_lines %>% 
+             size = transport_highway_sf$manhattan$osm_lines %>% 
                  add_weights() %>% pull(line_weights)) +
   
 
     
-    coord_sf(xlim = {clipboxes$manhatten %>% sf::st_bbox()}[c(1,3)],
-             ylim = {clipboxes$manhatten %>% sf::st_bbox()}[c(2,4)],
+    coord_sf(xlim = {clipboxes$manhattan %>% sf::st_bbox()}[c(1,3)],
+             ylim = {clipboxes$manhattan %>% sf::st_bbox()}[c(2,4)],
              expand = TRUE) +
-    labs(title = "Manhatten") 
+    labs(title = "Manhattan")
 
 
 # Muenster ----------------------------------------------------------------
@@ -390,18 +390,23 @@ vilseck_map <- ggplot() +
   
   labs(title = "Vilseck") 
 
-
 # bind --------------------------------------------------------------------
 
 library(patchwork) 
 
-patch_map <- durham_map + manhatten_map + muenster_map + vilseck_map +
+patch_map <- durham_map + manhattan_map + muenster_map + vilseck_map +
   plot_layout(ncol = 4)
 
-ggsave(filename = "./figs/patch_test.pdf",
+ggsave(filename = "./figs/patch_in_2.jpg",
        plot = patch_map,
-       width = 40*1.25,
-       height = 10.5*1.25,
+       width = 60.5,
+       height = 15.5,
        units = "in",
        dpi = 300,
        limitsize = FALSE)
+
+
+pdftools::pdf_convert("./figs/patch_cm.pdf",
+                      format = "jpeg",
+                      filenames = "./figs/patch_conv.jpeg",
+                      dpi = 300)
